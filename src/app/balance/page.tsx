@@ -1,13 +1,15 @@
 "use client"
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useNavBarAccount } from '@/components/NavBarContext';
 import { ethers } from 'ethers';
 import axios from 'axios';
+import { formatBalance } from '@/lib/utils';
 
 const BalancePage = () => {
-  const { account } = useNavBarAccount();
+  const { account: walletAccount } = useNavBarAccount();
+  const [manualAccount, setManualAccount] = useState('');
   const [balance, setBalance] = useState('');
 
   useEffect(() => {
@@ -22,7 +24,7 @@ const BalancePage = () => {
             'jsonrpc': '2.0',
             'method': 'eth_getBalance',
             'params': [
-              account,
+              manualAccount ? manualAccount : walletAccount,
               'latest'
             ],
             'id': 1
@@ -36,31 +38,47 @@ const BalancePage = () => {
 
         // Parse JSON response
         const { result: hexBalance } = await response.json();
-
+        
         // Transform result
-        const weiBalance = parseInt(hexBalance, 16).toString();
-        const balance = ethers.formatEther(weiBalance);
+        const weiBalance = parseInt(hexBalance, 16) || 0;
+        const balance = weiBalance * (10 ** -18);
 
         // Set balance value
-        setBalance(balance);
+        setBalance(balance.toString());
       } catch (error) {
+        setBalance('Invalid addreess')
         console.error('Error occurred:', error);
       }
     };
 
-    if (account) {
+    if (walletAccount) {
       fetchData();
     }
-  }, [account]);
+  }, [walletAccount, manualAccount]);
+
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setManualAccount(event.target.value);
+  };
 
   return (
     <div>
+      <div>
+        <input type="text" value={manualAccount} onChange={handleInputChange} placeholder="Enter wallet account address manually in hex" />
+      </div>
       <h1>Balance Page</h1>
       <p>This is the balance page content.</p>
-      {account && 
+      {manualAccount ?
         <div>
-          <p>{account}</p>
+          <p>{manualAccount}</p>
           <p>{balance} TEVMOS</p>
+        </div> :
+        walletAccount ?
+        <div>
+          <p>{walletAccount}</p>
+          <p>{balance} TEVMOS</p>
+        </div> :
+        <div>
+          <p>Log in with your wallet or enter a valid wallet account</p>
         </div>
       }
       <Link href="/">
@@ -69,35 +87,5 @@ const BalancePage = () => {
     </div>
   );
 };
-
-const GetBalance = async (account: string) => {
-  try {
-    const response = await axios.post(
-      'https://t-evmos-jsonrpc.kalia.network',
-      {
-        'jsonrpc': '2.0',
-        'method': 'eth_getBalance',
-        'params': [
-          {account},
-          'latest'
-        ],
-        'id': 1
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    );
-
-    const hexBalance = response.data.result
-    const weiBalance = parseInt(hexBalance, 16).toString();
-    const balance = ethers.formatEther(weiBalance);
-  
-    return balance
-  } catch (error) {
-    console.error('Error occurred:', error);
-  }
-}
 
 export default BalancePage;

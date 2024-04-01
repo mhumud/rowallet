@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import WalletIcon from "../../public/icons/WalletIcon";
 import { Button } from "./ui/button";
@@ -10,13 +8,18 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
+import { useNavBarAccount } from "./NavBarContext";
 
 const ConnectWalletButton = () => {
   const { sdk, connected, connecting, account } = useSDK();
+  const { setAccount } = useNavBarAccount();
+  setAccount(account);
+
 
   const connect = async () => {
     try {
       await sdk?.connect();
+      setAccount(account);
     } catch (err) {
       console.warn(`No accounts found`, err);
     }
@@ -25,6 +28,7 @@ const ConnectWalletButton = () => {
   const disconnect = () => {
     if (sdk) {
       sdk.terminate();
+      setAccount(account);
     }
   };
 
@@ -53,7 +57,7 @@ const ConnectWalletButton = () => {
   );
 };
 
-export const NavBar = () => {
+const NavBar = () => {
     const host =
       typeof window !== "undefined" ? window.location.host : "defaultHost";
   

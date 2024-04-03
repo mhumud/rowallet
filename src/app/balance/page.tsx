@@ -3,17 +3,35 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useNavBarAccount } from '@/components/NavBarContext';
-import { ethers } from 'ethers';
-import axios from 'axios';
-import { formatBalance } from '@/lib/utils';
+import { CoinGeckoClient } from 'coingecko-api-v3';
+
+const client = new CoinGeckoClient({
+  timeout: 10000,
+  autoRetry: true,
+});
 
 const BalancePage = () => {
   const { account: walletAccount } = useNavBarAccount();
   const [manualAccount, setManualAccount] = useState('');
-  const [balance, setBalance] = useState('');
-
+  const [balance, setBalance] = useState(0);
+  const [evmosPrice, setEvmosPrice] = useState(0);
+  
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchEvmosPrice = async () => {
+      const evmosPrice = await client.simplePrice({
+        ids: 'evmos',
+        vs_currencies: 'usd'
+      })
+      const { evmos: { usd } } = evmosPrice;
+
+      setEvmosPrice(usd);
+    }
+
+    fetchEvmosPrice();
+  }, [balance] )
+  
+  useEffect(() => {
+    const fetchWalletData = async () => {
       try {
         const response = await fetch('https://t-evmos-jsonrpc.kalia.network', {
           method: 'POST',
@@ -40,19 +58,19 @@ const BalancePage = () => {
         const { result: hexBalance } = await response.json();
         
         // Transform result
-        const weiBalance = parseInt(hexBalance, 16) || 0;
+        const weiBalance = parseInt(hexBalance, 16);
         const balance = weiBalance * (10 ** -18);
 
         // Set balance value
-        setBalance(balance.toString());
+        setBalance(balance);
       } catch (error) {
-        setBalance('Invalid addreess')
+        setBalance(0)
         console.error('Error occurred:', error);
       }
     };
 
     if (walletAccount) {
-      fetchData();
+      fetchWalletData();
     }
   }, [walletAccount, manualAccount]);
 
@@ -65,6 +83,7 @@ const BalancePage = () => {
       <div>
         <input type="text" value={manualAccount} onChange={handleInputChange} placeholder="Enter wallet account address manually in hex" />
       </div>
+      <p>1 EVMOS = {evmosPrice} USD</p>
       <h1>Balance Page</h1>
       <p>This is the balance page content.</p>
       {manualAccount ?

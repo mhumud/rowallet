@@ -16,7 +16,7 @@ interface RootLayoutProps extends AppProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body>
         <NavBarProvider>
           <NavBar />
           {children}

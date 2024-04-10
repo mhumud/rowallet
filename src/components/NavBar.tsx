@@ -1,6 +1,6 @@
 import Link from "next/link";
 import WalletIcon from "../../public/icons/WalletIcon";
-import { Button } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 import { useSDK, MetaMaskProvider } from "@metamask/sdk-react";
 import { formatAddress } from "../lib/utils";
 import {
@@ -9,17 +9,15 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { useNavBarAccount } from "./NavBarContext";
+import { useEffect } from "react";
 
 const ConnectWalletButton = () => {
   const { sdk, connected, connecting, account } = useSDK();
   const { setAccount } = useNavBarAccount();
-  setAccount(account);
-
 
   const connect = async () => {
     try {
       await sdk?.connect();
-      setAccount(account);
     } catch (err) {
       console.warn(`No accounts found`, err);
     }
@@ -28,16 +26,21 @@ const ConnectWalletButton = () => {
   const disconnect = () => {
     if (sdk) {
       sdk.terminate();
-      setAccount(account);
     }
   };
+
+  useEffect(() => {
+    if (connected) {
+      setAccount(account);
+    }
+  }, [connected, account, setAccount]);
 
   return (
     <div className="relative">
       {connected ? (
         <Popover>
           <PopoverTrigger>
-            <Button>{formatAddress(account)}</Button>
+            <p className={buttonVariants()}>{formatAddress(account)}</p>
           </PopoverTrigger>
           <PopoverContent className="mt-2 w-44 bg-gray-100 border rounded-md shadow-lg right-0 z-10 top-10">
             <button

@@ -5,11 +5,19 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const formatChainAsNum = (chainIdHex: string) => {
-  const chainIdNum = parseInt(chainIdHex);
-  return chainIdNum;
-};
-
 export const formatAddress = (addr: string | undefined) => {
   return `${addr?.substring(0, 8)}...`;
 };
+
+export const renderAccount = (account: string, accountBech32: string) : boolean => {
+  if (account && accountBech32 && account !== accountBech32) {
+    const accountLowerCase = account.toLowerCase();
+    const accountBech32LowerCase = accountBech32.toLocaleLowerCase();
+
+    if (accountLowerCase.startsWith('0x') && accountBech32LowerCase.startsWith('evmos')) {
+      return true;
+    }
+  }
+
+  return false
+}

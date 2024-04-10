@@ -1,153 +1,101 @@
-"use client"
+'use client'
 
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import converter from 'bech32-converting';
+import { getBalance } from '../../lib/api';
+import { AccountInput } from '../../components/AccountInput';
 import { useNavBarAccount } from '@/components/NavBarContext';
-import { CoinGeckoClient } from 'coingecko-api-v3';
-
-const client = new CoinGeckoClient({
-  timeout: 10000,
-  autoRetry: true,
-});
+import { toBech32, toHex } from '@/lib/bech32';
+import { getPrice } from '@/lib/coin-gecko';
+import { renderAccount } from '@/lib/utils';
 
 const BalancePage = () => {
   const { account: walletAccount } = useNavBarAccount();
-  const [walletAccountBech32, setWalletAccountBech32] = useState('');
-  const [manualAccountInput, setManualAccountInput] = useState('');
   const [manualAccount, setManualAccount] = useState('');
-  const [manualAccountBech32, setManualAccountBech32] = useState('');
+  const [account, setAccount] = useState('');
+  const [accountBech32, setAccountBech32] = useState('');
   const [balance, setBalance] = useState(0);
-  const [evmosPrice, setEvmosPrice] = useState(0);
+  const [coinPrice, setCoinPrice] = useState(0);
+  
+  const getAccount = (walletAccount: string | undefined, manualAccount: string) => {
+    let account = '';
+    let accountBech32 = '';
 
-  useEffect(() => {
+    manualAccount 
+      ? account = manualAccount
+      : account = walletAccount || '';
+    
+    const lowerCaseAccount = account.toLowerCase();
+    
     try {
-      const evmosPrefix = manualAccountInput.substring(0, 5);
-      const hexPrefix = manualAccountInput.substring(0, 2);
-
-      if (evmosPrefix.toLocaleLowerCase() == 'evmos') {
-        setManualAccountBech32(manualAccountInput);
-        
-        const hex = converter('evmos').toHex(manualAccountInput);
-        setManualAccount(hex);
-      } else if (hexPrefix == '0x') {
-        setManualAccount(manualAccountInput);
-        
-        const bech32 = converter('evmos').toBech32(manualAccountInput);
-        setManualAccountBech32(bech32);
-      } else {
-        setManualAccount(manualAccountInput);
-        setManualAccountBech32(manualAccountInput);
-      }
+      if (lowerCaseAccount.startsWith('0x')) {
+        accountBech32 = toBech32(account);
+      } else if (lowerCaseAccount.startsWith('evmos')) {
+        accountBech32 = account;
+        account = toHex(accountBech32);
+      } 
     } catch {
-      setManualAccount(manualAccountInput);
-      console.log('Invalid HEX/Evmos account address');
-    }
-  }, [manualAccountInput])
-
-  useEffect(() => {
-    if (walletAccount) {
-      const bech32 = converter('evmos').toBech32(walletAccount);
-      setWalletAccountBech32(bech32)
-    }
-  }, [walletAccount])
-
-  useEffect(() => {
-    const fetchEvmosPrice = async () => {
-      try {
-        const evmosPrice = await client.simplePrice({
-          ids: 'evmos',
-          vs_currencies: 'usd'
-        })
-        const { evmos: { usd } } = evmosPrice;
-  
-        setEvmosPrice(usd);
-      } catch (error) {
-        console.log(`Error in request to CoinGecko ${error}`)
-      }
+      console.log('Manual account not valid');
     }
 
-    fetchEvmosPrice();
-  }, [balance] )
-  
+    return {
+      account,
+      accountBech32,
+    }
+  }
+
   useEffect(() => {
-    const fetchWalletData = async () => {
-      try {
-        const response = await fetch('https://t-evmos-jsonrpc.kalia.network', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            'jsonrpc': '2.0',
-            'method': 'eth_getBalance',
-            'params': [
-              manualAccount ? manualAccount : walletAccount,
-              'latest'
-            ],
-            'id': 1
-          })
-        });
+    const {
+      account,
+      accountBech32,
+    } = getAccount(walletAccount, manualAccount);
 
-        if (!response.ok) {
-          // Handle error if response is not OK
-          throw new Error('Failed to fetch data');
-        }
+    setAccount(account);
+    setAccountBech32(accountBech32);
+  }, [walletAccount, manualAccount])
 
-        // Parse JSON response
-        const { result: hexBalance } = await response.json();
-        
-        // Transform result
-        const weiBalance = parseInt(hexBalance, 16) || 0;
-        const balance = weiBalance * (10 ** -18);
 
-        // Set balance value
-        setBalance(balance);
-      } catch (error) {
-        setBalance(0)
-        console.error('Error occurred:', error);
-      }
+  useEffect(() => {
+    // Fetch balance when wallet account changes
+    const fetchWalletBalance = async () => {
+      const balance = await getBalance(account);
+      setBalance(balance);
     };
-
-    if (walletAccount) {
-      fetchWalletData();
+    
+    
+    fetchWalletBalance();
+  }, [account]);
+  
+  useEffect(() => {
+    // Get coin price from Coin Gecko
+    const getCoinGeckoPrice = async () => {
+      const price = await getPrice({
+        sourceCoin: 'evmos',
+        targetCoin: 'eur',
+    })
+      setCoinPrice(price);
     }
-  }, [walletAccount, manualAccount]);
 
-  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setManualAccountInput(event.target.value);
+    getCoinGeckoPrice();
+  }, []);
+
+  const handleManualAccountChange = (account: string) => {
+    setManualAccount(account);
   };
 
   return (
     <div>
-      <div>
-        <input type="text" value={manualAccountInput} onChange={handleInputChange} placeholder="Enter wallet account address manually in hex" />
-      </div>
-      <p>1 EVMOS = {evmosPrice} USD</p>
-      <h1>Balance Page</h1>
-      <p>This is the balance page content.</p>
-      {manualAccount ?
-        balance ? 
-          <div>
-            <p>HEX: {manualAccount}</p>
-            <p>Bech32: {manualAccountBech32}</p>
-          </div> :
-          <div>
-            <p>Enter a valid HEX/Evmos account</p>
-          </div> :
-      walletAccount ?
-      <div>
-        <p>HEX: {walletAccount}</p>
-        <p>Bech32: {walletAccountBech32}</p>
-      </div> :
-      <div>
-        <p>Log in with your wallet or enter a valid wallet account</p>
-      </div>
-      }
-      {balance && <p>{balance} TEVMOS</p>}
-      <Link href="/">
-        Go back
-      </Link>
+      <AccountInput onManualAccountChange={handleManualAccountChange} />
+      {renderAccount(account, accountBech32) && (
+        <div>
+          <p>HEX: {account}</p>
+          <p>Evmos: {accountBech32}</p>
+          <p>Balance: {balance} TEVMOS</p>
+          <p>Evmos Price: {coinPrice} USD</p>
+          <p>USD Balance: {balance * coinPrice} USD</p>
+        </div>
+      )}
+      <Link href="/"> Go back </Link>
     </div>
   );
 };

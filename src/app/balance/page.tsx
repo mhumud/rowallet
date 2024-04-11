@@ -115,11 +115,11 @@ const BalancePage = () => {
           <div className="bg-white rounded-lg shadow-md p-4 flex flex-col gap-2 text-base">
             <div className='flex'>
               <p className="text-gray-700 font-bold">HEX:&nbsp;</p>
-              <p>{account}</p>
+              <p className='overflow-hidden'>{account}</p>
             </div>
             <div className='flex'>
               <p className="text-gray-700 font-bold">Evmos:&nbsp;</p>
-              <p>{accountBech32}</p>
+              <p className='overflow-hidden'>{accountBech32}</p>
             </div>
           </div>
 

@@ -12,6 +12,7 @@ import { useNavBarAccount } from "./NavBarContext";
 import { useEffect } from "react";
 import evmosLogo from '../../public/evmos-logo.png';
 import Image from 'next/image'
+import './NavBar.css'
 
 const ConnectWalletButton = () => {
   const { sdk, connected, connecting, account } = useSDK();
@@ -78,13 +79,13 @@ const NavBar = () => {
     };
   
     return (
-      <nav className="flex items-center justify-between max-w-screen-xl px-6 mx-auto py-7 rounded-xl">
+      <nav className="flex items-center justify-between px-6 mx-auto py-7 rounded-xl">
         <Link href="/" className="flex gap-1 px-6">
-          <span className="hidden text-2xl font-bold sm:block">
+          <span className="text-2xl font-bold sm:block">
             <Image 
               src={evmosLogo} 
               alt="Evmos logo"
-              width={250}
+              className="logo-image"
             />
           </span>
         </Link>

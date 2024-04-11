@@ -1,5 +1,4 @@
 import { CoinGeckoClient } from 'coingecko-api-v3';
-import { useEffect, useState } from 'react';
 
 interface GetPriceProps {
   sourceCoin: 'evmos'

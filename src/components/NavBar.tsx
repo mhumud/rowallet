@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/popover";
 import { useNavBarAccount } from "./NavBarContext";
 import { useEffect } from "react";
+import evmosLogo from '../../public/evmos-logo.png';
+import Image from 'next/image'
 
 const ConnectWalletButton = () => {
   const { sdk, connected, connecting, account } = useSDK();
@@ -32,6 +34,8 @@ const ConnectWalletButton = () => {
   useEffect(() => {
     if (connected) {
       setAccount(account);
+    } else {
+      setAccount('');
     }
   }, [connected, account, setAccount]);
 
@@ -77,7 +81,11 @@ const NavBar = () => {
       <nav className="flex items-center justify-between max-w-screen-xl px-6 mx-auto py-7 rounded-xl">
         <Link href="/" className="flex gap-1 px-6">
           <span className="hidden text-2xl font-bold sm:block">
-            <span className="text-gray-900">Template</span>
+            <Image 
+              src={evmosLogo} 
+              alt="Evmos logo"
+              width={250}
+            />
           </span>
         </Link>
         <div className="flex gap-4 px-6">

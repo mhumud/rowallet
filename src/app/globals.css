@@ -67,10 +67,11 @@
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
   body {
-    @apply bg-background text-foreground;
+    background-image: url('../../public/background.png');
+    background-size: fill;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh; 
   }
 }

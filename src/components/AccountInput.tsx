@@ -14,7 +14,12 @@ export const AccountInput: React.FC<AccountInputProps> = ({ onManualAccountChang
 
   return (
     <div>
-      <input type="text" onChange={handleInputChange} placeholder="Enter wallet account address manually in hex" />
+      <input
+        type="text"
+        onChange={handleInputChange}
+        placeholder="Enter wallet account address manually in HEX or Evmos format"
+        className="w-full bg-white text-gray-700 rounded-md px-4 py-2 border border-gray-300 focus:outline-none focus:ring-blue-500 focus:ring-opacity-50"
+      />
     </div>
   );
 };

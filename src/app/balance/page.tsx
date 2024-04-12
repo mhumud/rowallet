@@ -11,7 +11,10 @@ import Link from 'next/link';
 import { buttonVariants } from '@/components/ui/button';
 
 const BalancePage = () => {
+  // Get wallet account from the NavBar
   const { account: walletAccount } = useNavBarAccount();
+
+  // Define the variables to be used in the Component State
   const [manualAccount, setManualAccount] = useState('');
   const [account, setAccount] = useState('');
   const [accountBech32, setAccountBech32] = useState('');
@@ -19,6 +22,7 @@ const BalancePage = () => {
   const [balanceFiat, setBalanceFiat] = useState(0);
   const [coinPrice, setCoinPrice] = useState(0);
   
+  // Define function that defines the account to be shown in the view
   const getAccount = (walletAccount: string | undefined, manualAccount: string) => {
     let account = '';
     let accountBech32 = '';
@@ -46,6 +50,7 @@ const BalancePage = () => {
     }
   }
 
+  // Set account values when corresponds
   useEffect(() => {
     const {
       account,
@@ -68,6 +73,7 @@ const BalancePage = () => {
       });
       setBalance(parseFloat(formattedBalance));
       
+      // Set fiat balance when wallet account changes
       const balanceFiat = balance * coinPrice;
       const formattedBalanceFiat = balanceFiat.toLocaleString('en-US', {
         style: 'decimal',
@@ -81,14 +87,15 @@ const BalancePage = () => {
     fetchWalletBalance();
   }, [account, coinPrice]);
   
+  // Get coin price from Coin Gecko
   useEffect(() => {
-    // Get coin price from Coin Gecko
     const getCoinGeckoPrice = async () => {
       const price = await getPrice({
         sourceCoin: 'evmos',
         targetCoin: 'eur',
       });
 
+      // Format price for better clarity
       const formattedPrice = price.toLocaleString('en-US', {
         style: 'decimal',
         minimumFractionDigits: 2,
@@ -101,9 +108,11 @@ const BalancePage = () => {
     getCoinGeckoPrice();
   }, []);
 
+  // Update manual account when account input changes
   const handleManualAccountChange = (account: string) => {
     setManualAccount(account);
   };
+  
 
   return (
     <div className="flex flex-col gap-4 rounded-lg px-8 pt-4 pb-4">
@@ -112,6 +121,7 @@ const BalancePage = () => {
       {/* Balance information (conditionally rendered) */}
       {renderAccount(account, accountBech32) && (
         <div className="grid grid-cols-1 gap-4">
+          {/* Account information */}
           <div className="bg-white rounded-lg shadow-md p-4 flex flex-col gap-2 text-base">
             <div className='flex'>
               <p className="text-gray-700 font-bold">HEX:&nbsp;</p>
@@ -123,6 +133,7 @@ const BalancePage = () => {
             </div>
           </div>
 
+          {/* Coin balance information */}
           <div className="bg-green-100 rounded-lg shadow-md p-4 grid grid-cols-2 gap-4 text-lg">
             <div className='flex'>
               <p className="text-gray-700 font-bold flex">Balance:</p>
@@ -132,6 +143,7 @@ const BalancePage = () => {
             </div>
           </div>
           
+          {/* Fiat balance information */}
           <div className="bg-indigo-100 rounded-lg shadow-md p-4 grid grid-cols-2 gap-4 text-lg">
             <div className='flex'>
               <p className="text-gray-700 font-bold">Balance in USD:</p>
@@ -140,20 +152,28 @@ const BalancePage = () => {
               <p className="text-indigo-500 font-bold">{balanceFiat} USD</p>
             </div>
             <div className="flex">
-              <p className="">Evmos Price:</p>
+              <p>Evmos Price:</p>
             </div>
             <div className="flex">
-              <p className="">{coinPrice} USD</p>
+              <p>{coinPrice} USD</p>
             </div>
           </div>
 
+            {/* View footer  */}
             <div className="flex text-gray-200 ml-2">
-              <p>2024 - Market price data from&nbsp;
-                <a className='underline' target='blank' href='https://www.coingecko.com/en/api'>CoinGecko API</a>
-              </p>
+              <div className="flex-1">
+                <p>2024 - Market price from&nbsp;
+                  <a className='underline' target='blank' href='https://www.coingecko.com/en/api'>CoinGecko API</a>
+                </p>
+              </div>
+              <div className="flex-1 text-end">
+                <p>Version 1.0.1</p>
+              </div>
             </div>
         </div>
       )}
+
+      {/* Go back button */}
       <div className="flex justify-center mt-4">
         <Link href="/">
           <button className={buttonVariants()}>

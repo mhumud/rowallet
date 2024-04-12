@@ -12,6 +12,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        {/* Add NavBar context to the whole App */}
         <NavBarProvider>
           <NavBar />
           {children}

@@ -3,17 +3,14 @@ import WalletIcon from "../../public/icons/WalletIcon";
 import { Button, buttonVariants } from "./ui/button";
 import { useSDK, MetaMaskProvider } from "@metamask/sdk-react";
 import { formatAddress } from "../lib/utils";
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@/components/ui/popover";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { useNavBarAccount } from "./NavBarContext";
 import { useEffect } from "react";
 import evmosLogo from '../../public/evmos-logo.png';
 import Image from 'next/image'
 import './NavBar.css'
 
+// Define logics for wallet button
 const ConnectWalletButton = () => {
   const { sdk, connected, connecting, account } = useSDK();
   const { setAccount } = useNavBarAccount();
@@ -32,6 +29,7 @@ const ConnectWalletButton = () => {
     }
   };
 
+  // Update account when corresponds
   useEffect(() => {
     if (connected) {
       setAccount(account);
@@ -41,6 +39,7 @@ const ConnectWalletButton = () => {
   }, [connected, account, setAccount]);
 
   return (
+    // Show buttons depending on the state
     <div className="relative">
       {connected ? (
         <Popover>
@@ -65,6 +64,7 @@ const ConnectWalletButton = () => {
   );
 };
 
+// Define NavBar component
 const NavBar = () => {
     const host =
       typeof window !== "undefined" ? window.location.host : "defaultHost";
@@ -74,12 +74,13 @@ const NavBar = () => {
       checkInstallationImmediately: false,
       dappMetadata: {
         name: "Next-Metamask-Boilerplate",
-        url: host, // using the host constant defined above
+        url: host,
       },
     };
   
     return (
       <nav className="flex items-center justify-between px-6 mx-auto py-7 rounded-xl">
+        {/* Logo */}
         <Link href="/" className="flex gap-1 px-6">
           <span className="text-2xl font-bold sm:block">
             <Image 
@@ -89,6 +90,8 @@ const NavBar = () => {
             />
           </span>
         </Link>
+
+        {/* Wallet button */}
         <div className="flex gap-4 px-6">
           <MetaMaskProvider debug={false} sdkOptions={sdkOptions}>
             <ConnectWalletButton />

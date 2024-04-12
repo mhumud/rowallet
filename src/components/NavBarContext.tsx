@@ -5,6 +5,7 @@ interface NavBarContextType {
   setAccount: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
 
+// Create context for the NavBar
 const NavBarContext = createContext<NavBarContextType>({
   account: '',
   setAccount: () => {},
@@ -16,6 +17,7 @@ interface LayoutProps {
 
 export const useNavBarAccount = () => useContext(NavBarContext);
 
+// Add the context to the App
 export const NavBarProvider: React.FC<LayoutProps> = ({ children }) => {
   const [account, setAccount] = useState<string | undefined>('');
 

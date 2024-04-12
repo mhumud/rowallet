@@ -1,12 +1,12 @@
-import React, { ChangeEvent, useEffect, useState } from 'react';
-import { toBech32, toHex } from '../lib/bech32';
+import React, { ChangeEvent } from 'react';
 
 interface AccountInputProps {
-  onManualAccountChange: (account: string) => void;
+  // eslint-disable-next-line no-unused-vars
+  onManualAccountChange(account: string): void;
 }
 
+// Component for entering accounts manually
 export const AccountInput: React.FC<AccountInputProps> = ({ onManualAccountChange }) => {
-
   // Handle input change event
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     onManualAccountChange(event.target.value);

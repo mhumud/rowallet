@@ -113,7 +113,6 @@ const BalancePage = () => {
     setManualAccount(account);
   };
   
-
   return (
     <div className="flex flex-col gap-4 rounded-lg px-8 pt-4 pb-4">
       <AccountInput onManualAccountChange={handleManualAccountChange} />
@@ -145,10 +144,10 @@ const BalancePage = () => {
           
           {/* Fiat balance information */}
           <div className="bg-indigo-100 rounded-lg shadow-md p-4 grid grid-cols-2 gap-4 text-lg">
-            <div className='flex'>
+            <div className="flex">
               <p className="text-gray-700 font-bold">Balance in USD:</p>
             </div>
-            <div className='flex'>
+            <div className="flex">
               <p className="text-indigo-500 font-bold">{balanceFiat} USD</p>
             </div>
             <div className="flex">
@@ -159,8 +158,8 @@ const BalancePage = () => {
             </div>
           </div>
 
-            {/* View footer  */}
-            <div className="flex text-gray-200 ml-2">
+            {/* Footer of the view */}
+            <div className="flex text-gray-200 mx-2">
               <div className="flex-1">
                 <p>2024 - Market price from&nbsp;
                   <a className='underline' target='blank' href='https://www.coingecko.com/en/api'>CoinGecko API</a>

@@ -12,11 +12,11 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## APP
 
-# Homepage
+### Homepage
 
 You can see the homepage in which you can login into your wallet using MetaMask. Also, you can go into the balance page.
 
-# Balance
+### Balance
 
 In the balance page you can:
 1. See the balance for the account that is logged in into the wallet
